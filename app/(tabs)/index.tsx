@@ -1,7 +1,7 @@
 import { TaskList } from "@/components/tasks/task-list";
 import { Header } from "@/components/ui/header";
 import { Task } from "@/constants/types";
-import { loadTodosFromStorage, saveTodosToStorage } from "@/utils/storage";
+import { todoService } from "@/services/todo.service";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -11,17 +11,22 @@ import { useAuth } from "../../components/context/auth-context";
 export default function HomeScreen() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const reloadTasks = useCallback(async () => {
-    if (!user) {
+    if (!user || !user.token) {
       setTasks([]);
       return;
     }
+    setLoading(true);
     try {
-      const storedTodos = await loadTodosFromStorage();
-      setTasks(storedTodos.filter((task) => task.userEmail === user.email));
+      const fetchedTodos = await todoService.getTodos(user.token);
+      setTasks(fetchedTodos);
     } catch (err) {
       console.error("Error reloading tasks:", err);
+      // Optional: Show error to user
+    } finally {
+      setLoading(false);
     }
   }, [user]);
 
@@ -35,28 +40,43 @@ export default function HomeScreen() {
     }, [reloadTasks])
   );
 
-  const persistTasks = useCallback(
-    async (updatedTasks: Task[]) => {
-      if (!user) return;
-      const storedTodos = await loadTodosFromStorage();
-      const otherUsers = storedTodos.filter((task) => task.userEmail !== user.email);
-      await saveTodosToStorage([...otherUsers, ...updatedTasks]);
-    },
-    [user]
-  );
-
   const handleToggleTask = async (taskId: string) => {
+    if (!user?.token) return;
+
+    const taskToUpdate = tasks.find(t => t.id === taskId);
+    if (!taskToUpdate) return;
+
+    // Optimistic update
+    const previousTasks = [...tasks];
     const updated = tasks.map((task) =>
       task.id === taskId ? { ...task, completed: !task.completed } : task
     );
     setTasks(updated);
-    await persistTasks(updated);
+
+    try {
+      await todoService.updateTodo(user.token, taskId, { completed: !taskToUpdate.completed });
+    } catch (error) {
+      console.error("Error updating task:", error);
+      // Revert on error
+      setTasks(previousTasks);
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    if (!user?.token) return;
+
+    // Optimistic update
+    const previousTasks = [...tasks];
     const updated = tasks.filter((task) => task.id !== taskId);
     setTasks(updated);
-    await persistTasks(updated);
+
+    try {
+      await todoService.deleteTodo(user.token, taskId);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      // Revert on error
+      setTasks(previousTasks);
+    }
   };
 
   return (

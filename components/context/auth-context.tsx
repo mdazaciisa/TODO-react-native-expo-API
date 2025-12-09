@@ -1,4 +1,5 @@
 import { User } from '@/constants/types';
+import { authService } from '@/services/auth.service';
 import {
   clearSessionFromStorage,
   loadSessionFromStorage,
@@ -13,7 +14,7 @@ interface AuthResult {
 
 interface AuthContextType {
   user: User | null;
-  signIn: (email: string, password: string) => AuthResult;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => void;
 }
 
@@ -28,26 +29,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
     });
   }, []);
 
-  const signIn = (email: string, password: string): AuthResult => {
-    const validUsers = [
-      { email: "user1@example.com", password: "1234", name: "Alejandro Vargas" },
-      { email: "user2@example.com", password: "1234", name: "Camila Herrera"  },
-    ];
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
+    try {
+      const response = await authService.login(email, password);
 
-    const foundUser = validUsers.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-    );
+      const authenticatedUser: User = {
+        email: response.user.email,
+        name: response.user.name,
+        token: response.token
+      };
 
-    if (!foundUser || foundUser.password !== password) {
-      return { success: false, error: "Email o contraseña incorrectos" };
+      setUser(authenticatedUser);
+      await saveSessionToStorage(authenticatedUser);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Login error:", error);
+      return { success: false, error: error.message || "Error al iniciar sesión" };
     }
-
-    const authenticatedUser = { email: foundUser.email, name: foundUser.name };
-    setUser(authenticatedUser);
-    saveSessionToStorage(authenticatedUser).catch((error) => {
-      console.error('No se pudo guardar la sesión:', error);
-    });
-    return { success: true };
   };
 
   const signOut = () => {

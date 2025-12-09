@@ -1,7 +1,7 @@
 import { TaskForm } from "@/components/tasks/task-form";
 import Button from "@/components/ui/button";
 import { Task } from "@/constants/types";
-import { loadTodosFromStorage, saveTodosToStorage } from "@/utils/storage";
+import { todoService } from "@/services/todo.service";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
@@ -17,12 +17,12 @@ export default function AddTaskScreen() {
   const [isSaving, setIsSaving] = useState(false);
 
   useFocusEffect(
-  useCallback(() => {
-    // Resetear los campos cada vez que se entra al formulario
-    setTitle("");
-    setPhotoUri(null);
-  }, [])
-);
+    useCallback(() => {
+      // Resetear los campos cada vez que se entra al formulario
+      setTitle("");
+      setPhotoUri(null);
+    }, [])
+  );
 
 
   const handleTakePhoto = useCallback(async () => {
@@ -40,7 +40,7 @@ export default function AddTaskScreen() {
   }, []);
 
   const handleCreateTask = async () => {
-    if (!user) return;
+    if (!user || !user.token) return;
     if (!title.trim()) {
       Alert.alert("Nombre del libro requerido", "Ingresa el nombre del libro");
       return;
@@ -60,31 +60,18 @@ export default function AddTaskScreen() {
       }
 
       const coordinates = await Location.getCurrentPositionAsync({});
-
-      const newTask: Task = {
-        id: `${Date.now()}`,
-        title: title.trim(),
-        completed: false,
-        photoUri,
-        location: {
-          latitude: coordinates.coords.latitude,
-          longitude: coordinates.coords.longitude,
-        },
-        userEmail: user.email,
-        createdAt: new Date().toISOString(),
+      const location = {
+        latitude: coordinates.coords.latitude,
+        longitude: coordinates.coords.longitude,
       };
 
-      // Cargar tareas actuales del storage para asegurar que tenemos el estado más reciente
-      const storedTodos = await loadTodosFromStorage();
-      const updatedTodos = [newTask, ...storedTodos];
-      
-      await saveTodosToStorage(updatedTodos);
-      
+      await todoService.createTodo(user.token, title.trim(), photoUri, location);
+
       Alert.alert("Éxito", "Libro agregado correctamente.");
       router.replace("/(tabs)/");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", "No pudimos guardar el libro.");
+      Alert.alert("Error", error.message || "No pudimos guardar el libro.");
     } finally {
       setIsSaving(false);
     }

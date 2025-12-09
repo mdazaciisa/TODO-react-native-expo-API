@@ -12,8 +12,8 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    const result = signIn(email, password);
+  const handleLogin = async () => {
+    const result = await signIn(email, password);
 
     if (!result.success) {
       Alert.alert("Error", result.error ?? "Email o contraseña incorrectos");
@@ -28,9 +28,9 @@ export default function LoginScreen() {
       <View style={styles.container}>
 
         <Animated.View entering={FadeInUp.delay(200).duration(1000).springify()} style={{ alignItems: 'center' }}>
-           <Ionicons name="book-outline" size={60} color="#1d4ed8" style={styles.icon} />
+          <Ionicons name="book-outline" size={60} color="#1d4ed8" style={styles.icon} />
         </Animated.View>
-        
+
         <Animated.Text entering={FadeInUp.delay(400).duration(1000).springify()} style={styles.heading}>
           Bienvenido
         </Animated.Text>
@@ -57,7 +57,7 @@ export default function LoginScreen() {
             placeholderTextColor="#9CA3AF"
           />
 
-          <Button text="Iniciar sesión" type= "login" onPress={handleLogin}/>
+          <Button text="Iniciar sesión" type="login" onPress={handleLogin} />
         </Animated.View>
       </View>
     </ScrollView>
