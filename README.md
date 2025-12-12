@@ -97,3 +97,13 @@ Abre el emulador o la app Expo Go para probar la aplicación.
 
 ## Video de Demostración
 https://www.youtube.com/watch?v=deHgU_80WHI
+
+## Roles del equipo
+- Marcos Aburto: Desarrollo e implementación del CRUD de tareas, integrando las operaciones de creación, lectura, actualización y eliminación mediante la API.
+- Felipe Aguirre: Manejo de errores y validaciones en la aplicación; ajuste de la lógica de navegación para saegurar una redirección correcta al login cuando el usuario no cumple los requisitos de autenticación.
+- Marcela Daza: Ajustes visuales y de diseño; creación del material de evidencias del proyecto en funcionamiento (capturas y video).
+
+## Uso de IA
+Este proyecto contó con el apoyo de herramientas de Inteligencia Artificial (OpenAI ChatGPT y GitHub Copilot) para asistir en la generación de fragmentos de código, acelerar tareas repetitivas de programación, depurar errores y mejorar la redacción de textos.
+
+Todo el desarrollo fue revisado, adaptado y validado manualmente por los integrantes del equipo para asegurar su correcto funcionamiento y coherencia con los requisitos de la evaluación.
