@@ -94,7 +94,6 @@ export default function AddTaskScreen() {
         const coordinates = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
-
         location = {
           latitude: coordinates.coords.latitude,
           longitude: coordinates.coords.longitude,
@@ -109,7 +108,7 @@ export default function AddTaskScreen() {
       // Luego creamos la tarea asociando la URL retornada
       await createTodo(title.trim(), imageUrl, location);
 
-      Alert.alert("Éxito", `Libro agregado correctamente. URL de imagen: ${imageUrl}`);
+      Alert.alert("Éxito", "Tarea creada correctamente.");
       router.replace("/(tabs)/");
     } catch (error: any) {
       console.error(error);
