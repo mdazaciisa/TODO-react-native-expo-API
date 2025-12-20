@@ -16,9 +16,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     setErrorMsg("");
-    console.log("Login button pressed");
     const result = await signIn(email, password);
-    console.log("Sign in result:", result);
 
     if (!result.success) {
       const msg = result.error ?? "Email o contraseña incorrectos";

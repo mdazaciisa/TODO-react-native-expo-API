@@ -43,9 +43,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const signIn = async (email: string, password: string): Promise<AuthResult> => {
     try {
-      console.log("Calling authService.login with", email);
       const response = await authService.login(email, password);
-      console.log("authService response:", response);
 
       const authenticatedUser: User = {
         email: response.user?.email || email,
@@ -57,8 +55,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await saveSessionToStorage(authenticatedUser);
       return { success: true };
     } catch (error: any) {
-      console.error("Login error:", error);
-      
       //Manejo de JSON inválido/servidor caído
       const message = String(error);
 

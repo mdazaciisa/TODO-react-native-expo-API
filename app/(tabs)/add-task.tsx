@@ -1,6 +1,7 @@
 import { TaskForm } from "@/components/tasks/task-form";
 import Button from "@/components/ui/button";
-import { todoService } from "@/services/todo.service";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { useTodos } from "@/hooks/useTodos";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
@@ -11,6 +12,8 @@ import { useAuth } from "../../components/context/auth-context";
 
 export default function AddTaskScreen() {
   const { user } = useAuth();
+  const { createTodo } = useTodos();
+  const { uploadImage, uploading, error: uploadError } = useImageUpload();
   const [title, setTitle] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -83,15 +86,16 @@ export default function AddTaskScreen() {
           longitude: coordinates.coords.longitude,
         };
       } catch (locationError) {
-        console.warn(
-          "No se pudo obtener la ubicación actual, usando coordenadas por defecto:",
-          locationError
-        );
+        // Silenciar error y usar ubicación por defecto
       }
 
-      await todoService.createTodo(user.token, title.trim(), photoUri, location);
+      // Primero subimos la imagen al backend para obtener la URL pública
+      const imageUrl = await uploadImage(user.token, photoUri);
 
-      Alert.alert("Éxito", "Libro agregado correctamente.");
+      // Luego creamos la tarea asociando la URL retornada
+      await createTodo(title.trim(), imageUrl, location);
+
+      Alert.alert("Éxito", `Libro agregado correctamente. URL de imagen: ${imageUrl}`);
       router.replace("/(tabs)/");
     } catch (error: any) {
       console.error(error);
@@ -111,9 +115,13 @@ export default function AddTaskScreen() {
           setTitle={setTitle}
           photoUri={photoUri}
           handleTakePhoto={handleTakePhoto}
-          isSaving={isSaving}
+          isSaving={isSaving || uploading}
           handleCreateTask={handleCreateTask}
         />
+
+        {uploadError ? (
+          <Text style={styles.errorText}>{uploadError}</Text>
+        ) : null}
       </View>
 
       <Button text="Volver" onPress={() => router.replace("/(tabs)/")} />
@@ -126,5 +134,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: "#f5f5fb",
+  },
+  errorText: {
+    color: "#ef4444",
+    textAlign: "center",
+    marginTop: 8,
   },
 });

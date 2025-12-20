@@ -1,4 +1,4 @@
-import { Task, User } from "@/constants/types";
+import { User } from "@/constants/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SESSION_STORAGE_KEY = "@session_storage";

@@ -47,7 +47,6 @@ export function TaskItemCard({ item, onToggle, onDelete }: TaskItemCardProps) {
         </Text>
       )}
 
-      {/* <Image source={{ uri: item.photoUri }} style={styles.taskImage} /> */}
 
       <View style={styles.taskActions}>
         <ToggleTaskButton
