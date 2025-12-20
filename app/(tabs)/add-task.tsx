@@ -2,6 +2,7 @@ import { TaskForm } from "@/components/tasks/task-form";
 import Button from "@/components/ui/button";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useTodos } from "@/hooks/useTodos";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
@@ -34,10 +35,23 @@ export default function AddTaskScreen() {
       return;
     }
 
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.5 });
 
     if (!result.canceled && result.assets.length > 0) {
-      setPhotoUri(result.assets[0].uri);
+      const image = result.assets[0];
+      //reducir tamaño y peso de la imagen
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        image.uri,
+        [
+          { resize: { width: 1024 } },
+        ],
+        {
+          compress: 0.7,
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+
+      setPhotoUri(manipulatedImage.uri);
     }
   }, []);
 
