@@ -36,11 +36,20 @@ export function TaskItemCard({ item, onToggle, onDelete }: TaskItemCardProps) {
       ) : null}
 
       {item.photoUri && !imageError ? (
-        <Image
-          source={{ uri: item.photoUri }}
-          style={{ width: 120, height: 180, borderRadius: 8, alignSelf: "center", marginBottom: 12 }}
-          onError={() => setImageError(true)} // Si falla la carga se muestra mensaje "sin imagen"
-        />
+        <>
+          <Image
+            source={{ uri: item.photoUri }}
+            style={{ width: 120, height: 180, borderRadius: 8, alignSelf: "center", marginBottom: 12 }}
+            onError={() => setImageError(true)} // Si falla la carga se muestra mensaje "sin imagen"
+          />
+          <Text
+            style={styles.photoUrl}
+            numberOfLines={2}
+            selectable
+          >
+            {item.photoUri}
+          </Text>
+        </>
       ) : (
         <Text style={{ fontSize: 12, color: "gray", textAlign: "center", marginBottom: 12 }}>
           Sin imagen
@@ -101,4 +110,10 @@ const styles = StyleSheet.create({
   bookReadBorder: {
     borderColor: "#16a34a",
   },
+  photoUrl: {
+  fontSize: 11,
+  color: "#555",
+  textAlign: "center",
+  marginBottom: 12,
+},
 })

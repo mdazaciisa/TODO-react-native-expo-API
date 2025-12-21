@@ -118,7 +118,10 @@ Abre el emulador o la app Expo Go para probar la aplicación.
 
 
 ## Video de Demostración
-https://www.youtube.com/watch?v=deHgU_80WHI
+Video de evidencia del funcionamiento de la aplicación:
+
+👉 https://www.youtube.com/watch?v=EYqWOpzvVZk
+
 
 ## Roles del equipo
 - Marcos Aburto: Desarrollo e implementación del CRUD de tareas, integrando las operaciones de creación, lectura, actualización y eliminación mediante la API.
